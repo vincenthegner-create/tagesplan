@@ -1,0 +1,246 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vincents Tagesplan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+</head><body>
+<style>
+/* Layout: one calm card, header row (nav · date · planned minutes), vertical hour grid with absolutely placed blocks and a live now-line. */
+:root {
+  --bg: #ffffff;
+  --card: #ffffff;
+  --line: #ececea;
+  --line-soft: #f5f5f3;
+  --fg: #232321;
+  --muted: #8a8a86;
+  --pill: #f3f3f1;
+  --now: #e5675f;
+  --font: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* course colors (Notion-like), fill + text */
+  --c-orange: #fbecdd; --t-orange: #8a4a12;
+  --c-blue: #e3eefa; --t-blue: #1f4f82;
+  --c-purple: #efe7fa; --t-purple: #5a3591;
+  --c-pink: #fae6ef; --t-pink: #8b2b58;
+  --c-red: #fbe4e1; --t-red: #8f2a20;
+  --c-green: #e3f2e6; --t-green: #24603a;
+  --c-brown: #f1e8e0; --t-brown: #6b4a2f;
+  --c-yellow: #fbf3d8; --t-yellow: #7a5d0c;
+  --c-gray: #eeeeec; --t-gray: #4d4d49;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #191918; --card: #1f1f1e; --line: #2f2f2d; --line-soft: #262625; --fg: #ececea; --muted: #8f8f8a; --pill: #2a2a28; --now: #f07a72;
+    --c-orange: #3d2a1a; --t-orange: #f3c08f;
+    --c-blue: #1b2c40; --t-blue: #a9cdf5;
+    --c-purple: #2d2340; --t-purple: #cdb6f2;
+    --c-pink: #3b2030; --t-pink: #f2b3cf;
+    --c-red: #3e2220; --t-red: #f4aca3;
+    --c-green: #1d3424; --t-green: #a6dbb4;
+    --c-brown: #34281f; --t-brown: #dcc1a6;
+    --c-yellow: #3a3218; --t-yellow: #ecd789;
+    --c-gray: #2b2b29; --t-gray: #cfcfca;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #191918; --card: #1f1f1e; --line: #2f2f2d; --line-soft: #262625; --fg: #ececea; --muted: #8f8f8a; --pill: #2a2a28; --now: #f07a72;
+  --c-orange: #3d2a1a; --t-orange: #f3c08f;
+  --c-blue: #1b2c40; --t-blue: #a9cdf5;
+  --c-purple: #2d2340; --t-purple: #cdb6f2;
+  --c-pink: #3b2030; --t-pink: #f2b3cf;
+  --c-red: #3e2220; --t-red: #f4aca3;
+  --c-green: #1d3424; --t-green: #a6dbb4;
+  --c-brown: #34281f; --t-brown: #dcc1a6;
+  --c-yellow: #3a3218; --t-yellow: #ecd789;
+  --c-gray: #2b2b29; --t-gray: #cfcfca;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font);
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+  padding-block: 12px; box-sizing: border-box;
+}
+.card {
+  height: 100%; display: flex; flex-direction: column;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+}
+header {
+  display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 8px;
+  padding: 18px 20px 14px;
+}
+.nav {
+  width: 32px; height: 32px; border: 0; border-radius: 8px; background: transparent; color: var(--muted);
+  font: inherit; font-size: 18px; cursor: pointer; display: grid; place-items: center;
+}
+.nav:hover { background: var(--pill); color: var(--fg); }
+.nav:focus-visible, .today:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
+.date { font-size: 18px; font-weight: 400; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.planned {
+  background: var(--pill); color: var(--muted); border-radius: 8px; padding: 7px 12px;
+  font-size: 13px; font-weight: 500; letter-spacing: .02em; white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.today { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.today:hover { background: var(--pill); color: var(--fg); }
+.allday { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 56px 1fr; min-height: 34px; }
+.allday .lab { border-right: 1px solid var(--line); }
+.allday .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 10px; align-items: center; }
+.chip { font-size: 12px; padding: 3px 8px; border-radius: 6px; }
+.scroll { flex: 1; overflow-y: auto; position: relative; }
+.grid { position: relative; margin-left: 56px; }
+.hour { position: relative; border-top: 1px solid var(--line); }
+.hour::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--line-soft); }
+.hlabel {
+  position: absolute; left: -56px; width: 48px; top: -9px; text-align: right;
+  font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.block {
+  position: absolute; left: 6px; right: 8px; border-radius: 8px; padding: 6px 10px;
+  box-sizing: border-box; overflow: hidden; font-size: 13px; line-height: 1.3;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.block .t { font-weight: 600; }
+.block .s { opacity: .85; }
+.block .time { font-size: 11px; opacity: .75; font-variant-numeric: tabular-nums; }
+.block.done { opacity: .55; }
+.block.done .t { text-decoration: line-through; }
+.block.short { flex-direction: row; align-items: center; gap: 8px; padding-block: 2px; }
+.block.short .s, .block.short .time { white-space: nowrap; }
+.now { position: absolute; left: -8px; right: 0; height: 0; border-top: 2px solid var(--now); z-index: 3; pointer-events: none; }
+.now::before { content: ""; position: absolute; left: -5px; top: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--now); }
+.empty { position: absolute; left: 0; right: 0; top: 40%; text-align: center; color: var(--muted); font-size: 13px; }
+@media (max-width: 420px) {
+  header { grid-template-columns: auto 1fr auto; padding-inline: 12px; }
+  .today { display: none; }
+  .date { font-size: 16px; }
+}
+@media (prefers-reduced-motion: no-preference) { .scroll { scroll-behavior: smooth; } }
+</style>
+
+<div class="card">
+  <header>
+    <button class="nav" id="prev" aria-label="Vorheriger Tag">‹</button>
+    <div class="date" id="date">Heute</div>
+    <button class="nav" id="next" aria-label="Nächster Tag">›</button>
+    <span class="planned" id="planned">0 min geplant</span>
+  </header>
+  <div class="allday" id="allday" hidden><div class="lab"></div><div class="chips" id="chips"></div></div>
+  <div class="scroll" id="scroll"><div class="grid" id="grid"></div></div>
+</div>
+
+<script>
+// Plan data — updated by Claude at every check-in. Times are local (Europe/Berlin).
+const PLAN = {
+  "2026-11-05": {
+    note: "Praktikumstag",
+    blocks: [
+      { start: "16:00", end: "17:00", kurs: "TM 1", text: "Vorlesung der letzten Woche nachholen", color: "orange" },
+      { start: "17:00", end: "17:45", kurs: "TM 1", text: "Übungsblatt dazu rechnen", color: "orange" },
+      { start: "17:45", end: "18:00", kurs: "RemNote", text: "Wiederholung", color: "purple" }
+    ]
+  }
+};
+const ALLDAY = {
+  "2026-12-14": [{ text: "Klausur Markenschutz", color: "blue" }]
+};
+
+const HOUR_H = 64;            // px per hour
+const START_H = 6, END_H = 24; // visible range
+const WD = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+
+const pad = n => String(n).padStart(2, "0");
+const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const toMin = s => { const [h, m] = s.split(":").map(Number); return h * 60 + m; };
+
+let view = new Date(); view.setHours(0,0,0,0);
+// If today has no plan yet, open on the next planned day.
+(function pickStart(){
+  const todayKey = key(view);
+  if (PLAN[todayKey]) return;
+  const next = Object.keys(PLAN).sort().find(k => k > todayKey);
+  if (next) { const [y,m,d] = next.split("-").map(Number); view = new Date(y, m-1, d); }
+})();
+
+const grid = document.getElementById("grid");
+const scroll = document.getElementById("scroll");
+
+function build() {
+  grid.innerHTML = "";
+  grid.style.height = (END_H - START_H) * HOUR_H + "px";
+  for (let h = START_H; h < END_H; h++) {
+    const row = document.createElement("div");
+    row.className = "hour"; row.style.height = HOUR_H + "px";
+    const lab = document.createElement("div");
+    lab.className = "hlabel"; lab.textContent = `${pad(h)}:00`;
+    row.appendChild(lab); grid.appendChild(row);
+  }
+  const endLab = document.createElement("div");
+  endLab.className = "hlabel"; endLab.style.top = `${(END_H-START_H)*HOUR_H - 9}px`; endLab.textContent = "24:00";
+  grid.appendChild(endLab);
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const k = key(view);
+  const diff = Math.round((view - today) / 86400000);
+  const prefix = diff === 0 ? "Heute, " : diff === 1 ? "Morgen, " : diff === -1 ? "Gestern, " : "";
+  document.getElementById("date").textContent = `${prefix}${WD[view.getDay()]} ${pad(view.getDate())}.${pad(view.getMonth()+1)}`;
+
+  const day = PLAN[k];
+  const blocks = day ? day.blocks : [];
+  const total = blocks.reduce((s, b) => s + toMin(b.end) - toMin(b.start), 0);
+  document.getElementById("planned").textContent = `${total} min geplant`;
+
+  const chipsWrap = document.getElementById("allday");
+  const chips = document.getElementById("chips");
+  chips.innerHTML = "";
+  const ad = ALLDAY[k] || [];
+  chipsWrap.hidden = ad.length === 0;
+  ad.forEach(c => {
+    const el = document.createElement("span");
+    el.className = "chip"; el.textContent = c.text;
+    el.style.background = `var(--c-${c.color})`; el.style.color = `var(--t-${c.color})`;
+    chips.appendChild(el);
+  });
+
+  blocks.forEach(b => {
+    const s = toMin(b.start), e = toMin(b.end);
+    const top = (s / 60 - START_H) * HOUR_H, h = Math.max(18, (e - s) / 60 * HOUR_H - 2);
+    const el = document.createElement("div");
+    el.className = "block" + (b.done ? " done" : "") + (h < 40 ? " short" : "");
+    el.style.top = top + 1 + "px"; el.style.height = h + "px";
+    el.style.background = `var(--c-${b.color || "gray"})`; el.style.color = `var(--t-${b.color || "gray"})`;
+    el.innerHTML = `<span class="t"></span><span class="s"></span><span class="time"></span>`;
+    el.querySelector(".t").textContent = b.kurs;
+    el.querySelector(".s").textContent = b.text;
+    el.querySelector(".time").textContent = `${b.start}–${b.end}`;
+    grid.appendChild(el);
+  });
+
+  if (!blocks.length) {
+    const em = document.createElement("div");
+    em.className = "empty"; em.textContent = "Für diesen Tag ist noch nichts geplant.";
+    grid.appendChild(em);
+  }
+
+  drawNow();
+  const first = blocks.length ? toMin(blocks[0].start) / 60 : (diff === 0 ? new Date().getHours() : 8);
+  scroll.scrollTop = Math.max(0, (first - START_H - 1) * HOUR_H);
+}
+
+function drawNow() {
+  grid.querySelectorAll(".now").forEach(n => n.remove());
+  const now = new Date();
+  if (key(now) !== key(view)) return;
+  const m = now.getHours() * 60 + now.getMinutes();
+  if (m < START_H * 60) return;
+  const line = document.createElement("div");
+  line.className = "now"; line.style.top = (m / 60 - START_H) * HOUR_H + "px";
+  grid.appendChild(line);
+}
+
+document.getElementById("prev").addEventListener("click", () => { view.setDate(view.getDate() - 1); build(); });
+document.getElementById("next").addEventListener("click", () => { view.setDate(view.getDate() + 1); build(); });
+setInterval(drawNow, 60000);
+build();
+</script>
+</body></html>
