@@ -20,7 +20,12 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body { background: var(--bg); color: var(--fg); font-family: var(--font); padding: 8px max(10px, env(safe-area-inset-left, 0px)); }
-.wrap { max-width: 300px; display: flex; flex-direction: column; gap: 9px; }
+.wrap { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 14px 20px; align-items: center; }
+.left { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.right { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+.right .btns { justify-content: flex-end; }
+.right button { justify-content: center; }
+@media (max-width: 380px) { .wrap { grid-template-columns: 1fr; } .right .btns { justify-content: flex-start; } }
 .label { font-size: 11px; color: var(--muted); margin-bottom: -5px; }
 .select { position: relative; }
 select {
@@ -30,7 +35,7 @@ select {
 }
 .select::after { content: "⌄"; position: absolute; left: min(100%, 160px); margin-left: -18px; top: 2px; color: var(--muted); font-size: 12px; pointer-events: none; }
 .row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.big { font-size: clamp(28px, 8vw, 40px); font-weight: 300; letter-spacing: -0.04em; line-height: 0.95; font-variant-numeric: tabular-nums; }
+.big { font-size: clamp(30px, 9vw, 48px); font-weight: 300; letter-spacing: -0.04em; line-height: 0.95; font-variant-numeric: tabular-nums; }
 .big.done { color: var(--done); }
 .range { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; padding-bottom: 3px; }
 .track { height: 4px; background: var(--track); border-radius: 99px; overflow: hidden; }
@@ -51,6 +56,7 @@ button:disabled { opacity: .4; cursor: default; }
 </head>
 <body>
 <div class="wrap">
+ <div class="left">
   <div class="label">Timer</div>
   <div class="select">
     <select id="mode" aria-label="Timer-Art">
@@ -66,7 +72,9 @@ button:disabled { opacity: .4; cursor: default; }
     <div class="range" id="range"></div>
   </div>
   <div class="track"><div class="fill" id="fill"></div></div>
-
+  <div class="stat" id="stat"></div>
+ </div>
+ <div class="right">
   <div class="btns">
     <button id="minus">- 5 min</button>
     <button id="plus">+ 5 min</button>
@@ -75,7 +83,7 @@ button:disabled { opacity: .4; cursor: default; }
     <button id="stop"><svg class="ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5"/></svg><span>Session beenden</span></button>
     <button id="toggle"><svg class="ico" id="toggleIco" viewBox="0 0 14 14" fill="currentColor"></svg><span id="toggleTxt">Starten</span></button>
   </div>
-  <div class="stat" id="stat"></div>
+ </div>
 </div>
 
 <script>
