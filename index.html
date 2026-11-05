@@ -145,15 +145,30 @@ const PLAN = {
     blocks: [
       { start: "08:00", end: "10:00", kurs: "Markenschutz", text: "Vorlesungen nachholen", color: "blue" },
       { start: "10:00", end: "12:00", kurs: "Markenschutz", text: "Fälle und Übungsaufgaben bearbeiten", color: "blue" },
-      { start: "13:00", end: "14:30", kurs: "TM 1", text: "Vorlesung nachholen", color: "orange" },
-      { start: "14:30", end: "16:00", kurs: "TM 1", text: "Übungsblatt rechnen", color: "orange" },
+      { start: "13:00", end: "14:30", kurs: "TM 1", text: "Vorlesung nachholen (ebene Tragwerke)", color: "orange" },
+      { start: "14:30", end: "16:00", kurs: "TM 1", text: "Übung ebene Tragwerke (Stoff E-Test 1)", color: "orange" },
       { start: "16:30", end: "18:00", kurs: "Markenschutz", text: "Karteikarten und Prüfungsschema aufbauen", color: "blue" },
       { start: "18:00", end: "18:45", kurs: "TM 1", text: "Fehler aus dem Übungsblatt nacharbeiten", color: "orange" },
       { start: "18:45", end: "19:00", kurs: "RemNote", text: "Wiederholung", color: "purple" }
     ]
+  },
+  "2026-11-08": {
+    note: "ME-1-Abgaben + Markenschutz",
+    blocks: [
+      { start: "08:00", end: "10:00", kurs: "Markenschutz", text: "Vorlesung nacharbeiten, Karteikarten ergänzen", color: "blue" },
+      { start: "10:00", end: "12:00", kurs: "ME 1", text: "Gegenseitige Beurteilung Hebelkonstruktion (fällig 23:55)", color: "brown" },
+      { start: "13:00", end: "15:30", kurs: "ME 1", text: "Zentralübung 03 + E-Test (fällig Mo 23:55)", color: "brown" },
+      { start: "15:30", end: "16:00", kurs: "TM 1", text: "Aufgaben ebene Tragwerke", color: "orange" },
+      { start: "16:30", end: "18:00", kurs: "Markenschutz", text: "Fälle bearbeiten", color: "blue" },
+      { start: "18:00", end: "18:45", kurs: "TM 1", text: "E-Test 1 vorbereiten", color: "orange" },
+      { start: "18:45", end: "19:00", kurs: "RemNote", text: "Wiederholung + Wochenreview", color: "purple" }
+    ]
   }
 };
 const ALLDAY = {
+  "2026-11-08": [{ text: "Frist 23:55 · ME 1 Gegenseitige Beurteilung", color: "red" }],
+  "2026-11-09": [{ text: "Frist 23:55 · ME 1 E-Test Zentralübung 03", color: "red" }],
+  "2026-11-16": [{ text: "Frist 16:00 · TM 1 E-Test 1 (ebene Tragwerke)", color: "red" }],
   "2026-12-14": [{ text: "Klausur Markenschutz", color: "blue" }]
 };
 
